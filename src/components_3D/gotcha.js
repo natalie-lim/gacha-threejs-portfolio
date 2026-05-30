@@ -8,9 +8,7 @@ function Gotcha() {
   const mountRef = useRef(null);
 
   useEffect(() => {
-    const evaluator = new Evaluator();
     const mount = mountRef.current;
-
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(
       75,
@@ -21,11 +19,18 @@ function Gotcha() {
     const renderer = new THREE.WebGLRenderer({ alpha: true });
     renderer.setSize(mount.clientWidth, mount.clientHeight);
     mount.appendChild(renderer.domElement);
+    const evaluator = new Evaluator();
     const light = new THREE.DirectionalLight(0xffffff, 3);
     light.position.set(-1, 2, 4);
     scene.add(light);
-
     const controls = new OrbitControls(camera, renderer.domElement);
+    const mouse = new THREE.Vector2();
+    const raycaster = new THREE.Raycaster();
+    // track normal mouse movement (-1 to +1 range)
+    window.addEventListener("pointermove", (event) => {
+      mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+      mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    });
     // controls.update() must be called after any manual changes to the camera's transform
     camera.position.set(0, 20, 100);
     controls.enableDamping = true;
@@ -264,11 +269,24 @@ function Gotcha() {
       renderer.render(scene, camera);
     }
     renderer.setAnimationLoop(animate);
+
+    function onClick() {
+      raycaster.setFromCamera(mouse, camera);
+      const hits = raycaster.intersectObjects([crankMesh], true);
+      if (hits.length > 0) {
+        const mat = Array.isArray(crankMesh.material)
+          ? crankMesh.material[0]
+          : crankMesh.material;
+        if (mat?.color) mat.color.set(0xff0000);
+      }
+    }
+    renderer.domElement.addEventListener("click", onClick);
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1;
 
     return () => {
+      renderer.domElement.removeEventListener("click", onClick);
       renderer.setAnimationLoop(null);
       renderer.dispose();
       mount.removeChild(renderer.domElement);
