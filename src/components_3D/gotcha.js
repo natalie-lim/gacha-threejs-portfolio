@@ -8,6 +8,7 @@ function Gotcha() {
   const mountRef = useRef(null);
 
   useEffect(() => {
+    const evaluator = new Evaluator();
     const mount = mountRef.current;
 
     const scene = new THREE.Scene();
@@ -104,16 +105,52 @@ function Gotcha() {
     cutter.position.y = bubble_position_y;
     cutter.position.z = bubble_position_z;
 
+    const geometry_crank = new THREE.CylinderGeometry(
+      0.25,
+      0.25,
+      0.1,
+      25,
+      5,
+      false,
+      0,
+      Math.PI * 2,
+    );
+
+    const crank_material = new THREE.MeshPhongMaterial({ color: 0x463239 });
+    const crank_base = new Brush(geometry_crank, crank_material);
+    crank_base.rotation.x = Math.PI / 2;
+    crank_base.position.z = base_z / 2 + 0.025;
+    crank_base.position.y = -1;
+
+    const geometry_crank_handle = new THREE.BoxGeometry(0.5, 0.075, 0.1);
+    const crank_handle = new Brush(geometry_crank_handle, crank_material);
+
+    crank_handle.position.y = crank_base.position.y;
+    crank_handle.position.z = crank_base.position.z + 0.1;
+
+    const hole_geo = new THREE.CylinderGeometry(0.1, 0.1, 0.1, 25);
+    const hole = new Brush(hole_geo);
+    hole.rotation.x = Math.PI / 2;
+    hole.position.z = crank_base.position.z;
+    hole.position.y = crank_base.position.y;
+
     base_of_base.updateMatrixWorld();
     base.updateMatrixWorld();
     roof.updateMatrixWorld();
     cutter.updateMatrixWorld();
+    crank_base.updateMatrixWorld();
+    crank_handle.updateMatrixWorld();
+    hole.updateMatrixWorld();
 
-    const evaluator = new Evaluator();
     const top = evaluator.evaluate(base, roof, ADDITION);
     const body = evaluator.evaluate(base_of_base, top, ADDITION);
     const result = evaluator.evaluate(body, cutter, SUBTRACTION);
     result.position.y = -2;
+
+    const crank = evaluator.evaluate(crank_base, crank_handle, ADDITION);
+    const crankMesh = evaluator.evaluate(crank, hole, SUBTRACTION);
+    crankMesh.position.y = -1;
+    scene.add(crankMesh);
     scene.add(result);
 
     const glassMesh = new THREE.Mesh(bubbleGeometry, bubbleMaterial);
@@ -121,7 +158,7 @@ function Gotcha() {
     glassMesh.rotation.y = Math.PI / 2;
     glassMesh.rotation.z = Math.PI / 2;
     glassMesh.position.x = bubble_position_x;
-    glassMesh.position.y = bubble_position_y-2;
+    glassMesh.position.y = bubble_position_y - 2;
     glassMesh.position.z = bubble_position_z;
 
     scene.add(glassMesh);
@@ -135,29 +172,48 @@ function Gotcha() {
     // Physics world — gravity along -Y
     const world = new CANNON.World({ gravity: new CANNON.Vec3(0, -9.82, 0) });
 
-    const sphereMat = new CANNON.Material('sphere');
-    const wallMat = new CANNON.Material('wall');
+    const sphereMat = new CANNON.Material("sphere");
+    const wallMat = new CANNON.Material("wall");
 
     // Static container matching glass window world bounds: X:-1→1, Y:-0.625→0.625, Z:0→1
     const container = new CANNON.Body({ mass: 0, material: wallMat });
-    container.addShape(new CANNON.Box(new CANNON.Vec3(1,    0.05,  0.5)),  new CANNON.Vec3(0, -0.625, 0.5)); // floor
-    container.addShape(new CANNON.Box(new CANNON.Vec3(0.05, 0.65,  0.5)),  new CANNON.Vec3(-1, 0,    0.5)); // left
-    container.addShape(new CANNON.Box(new CANNON.Vec3(0.05, 0.65,  0.5)),  new CANNON.Vec3( 1, 0,    0.5)); // right
-    container.addShape(new CANNON.Box(new CANNON.Vec3(1,    0.65,  0.05)), new CANNON.Vec3(0,  0,    0));   // back
-    container.addShape(new CANNON.Box(new CANNON.Vec3(1,    0.65,  0.05)), new CANNON.Vec3(0,  0,    1));   // front
+    container.addShape(
+      new CANNON.Box(new CANNON.Vec3(1, 0.05, 0.5)),
+      new CANNON.Vec3(0, -0.625, 0.5),
+    ); // floor
+    container.addShape(
+      new CANNON.Box(new CANNON.Vec3(0.05, 0.65, 0.5)),
+      new CANNON.Vec3(-1, 0, 0.5),
+    ); // left
+    container.addShape(
+      new CANNON.Box(new CANNON.Vec3(0.05, 0.65, 0.5)),
+      new CANNON.Vec3(1, 0, 0.5),
+    ); // right
+    container.addShape(
+      new CANNON.Box(new CANNON.Vec3(1, 0.65, 0.05)),
+      new CANNON.Vec3(0, 0, 0),
+    ); // back
+    container.addShape(
+      new CANNON.Box(new CANNON.Vec3(1, 0.65, 0.05)),
+      new CANNON.Vec3(0, 0, 1),
+    ); // front
     world.addBody(container);
 
     const sphereGeo = new THREE.SphereGeometry(0.24, 40, 40);
     const sphereBodies = [];
     const sphereMeshes = [];
 
-    const sphereSphereContact = new CANNON.ContactMaterial(sphereMat, sphereMat, {
-    friction: 0.4,
-    restitution: 0.4,
-    });
+    const sphereSphereContact = new CANNON.ContactMaterial(
+      sphereMat,
+      sphereMat,
+      {
+        friction: 0.4,
+        restitution: 0.4,
+      },
+    );
     const sphereWallContact = new CANNON.ContactMaterial(sphereMat, wallMat, {
-    friction: 0.6,
-    restitution: 0.2,
+      friction: 0.6,
+      restitution: 0.2,
     });
 
     world.addContactMaterial(sphereSphereContact);
@@ -174,9 +230,15 @@ function Gotcha() {
       const col = i % 3;
       const row = Math.floor((i % 6) / 3);
       const layer = Math.floor(i / 6);
-      body.position.set([-0.5 + Math.random()*0.03, 0+ Math.random()*0.03, 0.5+ Math.random()*0.03][col], 
-        [-0.3+ Math.random()*0.03, 0.2+ Math.random()*0.03][row], 
-        [0.25+ Math.random()*0.03, 0.75+ Math.random()*0.03][layer]);
+      body.position.set(
+        [
+          -0.5 + Math.random() * 0.03,
+          0 + Math.random() * 0.03,
+          0.5 + Math.random() * 0.03,
+        ][col],
+        [-0.3 + Math.random() * 0.03, 0.2 + Math.random() * 0.03][row],
+        [0.25 + Math.random() * 0.03, 0.75 + Math.random() * 0.03][layer],
+      );
       world.addBody(body);
       sphereBodies.push(body);
 

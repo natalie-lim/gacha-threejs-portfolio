@@ -12,7 +12,7 @@ function App() {
 
   return (
     <div className="bg-green-50">
-      {visible && <Welcome text="hi, my name is natalie!" />}
+      {/* {visible && <Welcome text="hi, my name is natalie!" />} */}
       <Gotcha />
     </div>
   );
