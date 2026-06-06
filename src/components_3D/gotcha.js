@@ -220,31 +220,31 @@ function Gotcha() {
     const sphereMat = new CANNON.Material("sphere");
     const wallMat = new CANNON.Material("wall");
 
-    // Static container: X inner faces ±0.95, Y floor -0.325/ceiling 0.9, Z inner faces -0.25→1.05
+    // Static container: X inner faces ±0.95, Y floor -0.325/ceiling 0.9, Z inner faces -0.45→0.85
     const container = new CANNON.Body({ mass: 0, material: wallMat });
     container.addShape(
       new CANNON.Box(new CANNON.Vec3(1, 0.05, 0.7)),
-      new CANNON.Vec3(0, -0.375, 0.4),
+      new CANNON.Vec3(0, -0.375, 0.2),
     ); // floor
     container.addShape(
       new CANNON.Box(new CANNON.Vec3(1, 0.05, 0.7)),
-      new CANNON.Vec3(0, 0.95, 0.4),
+      new CANNON.Vec3(0, 0.95, 0.2),
     ); // ceiling
     container.addShape(
       new CANNON.Box(new CANNON.Vec3(0.05, 0.65, 0.7)),
-      new CANNON.Vec3(-1, 0.25, 0.4),
+      new CANNON.Vec3(-1, 0.25, 0.2),
     ); // left
     container.addShape(
       new CANNON.Box(new CANNON.Vec3(0.05, 0.65, 0.7)),
-      new CANNON.Vec3(1, 0.25, 0.4),
+      new CANNON.Vec3(1, 0.25, 0.2),
     ); // right
     container.addShape(
       new CANNON.Box(new CANNON.Vec3(1, 0.65, 0.05)),
-      new CANNON.Vec3(0, 0.25, -0.3),
+      new CANNON.Vec3(0, 0.25, -0.5),
     ); // back
     container.addShape(
       new CANNON.Box(new CANNON.Vec3(1, 0.65, 0.05)),
-      new CANNON.Vec3(0, 0.25, 1.1),
+      new CANNON.Vec3(0, 0.25, 0.9),
     ); // front
     world.addBody(container);
 
@@ -256,7 +256,7 @@ function Gotcha() {
       sphereMat,
       sphereMat,
       {
-        friction: 0.4,
+        friction: 0.1,
         restitution: 0.4,
       },
     );
@@ -287,9 +287,9 @@ function Gotcha() {
         ][col],
         [-0.05 + Math.random() * 0.03, 0.45 + Math.random() * 0.03][row],
         [
-          0.05 + Math.random() * 0.03,
-          0.45 + Math.random() * 0.03,
-          0.8 + Math.random() * 0.03,
+          -0.15 + Math.random() * 0.03,
+          0.25 + Math.random() * 0.03,
+          0.6 + Math.random() * 0.03,
         ][layer],
       );
       world.addBody(body);
@@ -338,7 +338,10 @@ function Gotcha() {
       });
       body.position.set(x, y, z);
       world.addBody(body);
-      const mesh = new THREE.Mesh(sphereGeo, new THREE.MeshPhysicalMaterial({ color }));
+      const mesh = new THREE.Mesh(
+        sphereGeo,
+        new THREE.MeshPhysicalMaterial({ color }),
+      );
       scene.add(mesh);
       sphereBodies.push(body);
       sphereMeshes.push(mesh);
