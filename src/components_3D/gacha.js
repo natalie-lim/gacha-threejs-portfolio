@@ -32,7 +32,7 @@ function Gotcha() {
       mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
     });
     // controls.update() must be called after any manual changes to the camera's transform
-    camera.position.set(0, 0, 5);
+    camera.position.set(0, 0, 3.78);
     controls.target.set(0, -0.625, 0);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
@@ -403,7 +403,7 @@ function Gotcha() {
     };
   }, []);
 
-  return <div ref={mountRef} className="border-2" style={{ width: "100vw", height: "100vh" }} />;
+  return <div ref={mountRef} className="border-2" style={{ width: "600px", height: "600px" }} />;
 }
 
 export default Gotcha;
