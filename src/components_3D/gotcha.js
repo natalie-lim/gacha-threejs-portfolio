@@ -33,7 +33,7 @@ function Gotcha() {
     });
     // controls.update() must be called after any manual changes to the camera's transform
     camera.position.set(0, 0, 5);
-    controls.target.set(0, -0.375, 0);
+    controls.target.set(0, -0.625, 0);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
 
@@ -46,7 +46,7 @@ function Gotcha() {
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
     scene.add(ambientLight);
     const base_x = 1.85,
-      base_y = 2.5,
+      base_y = 2.6,
       base_z = 1.75;
 
     const geometry = new THREE.BoxGeometry(base_x, base_y, base_z);
@@ -76,8 +76,8 @@ function Gotcha() {
     roof.position.y = base.position.y + base_y / 2 + 0.25 / 2;
 
     const shape = new THREE.Shape();
-    const w = 1.5,
-      h = 1.25,
+    const w = 1.6,
+      h = 1.35,
       r = 0.2; // width, height, corner radius
 
     shape.moveTo(-w / 2 + r, -h / 2);
@@ -90,7 +90,7 @@ function Gotcha() {
     shape.lineTo(-w / 2, -h / 2 + r);
     shape.quadraticCurveTo(-w / 2, -h / 2, -w / 2 + r, -h / 2);
 
-    const extrudeSettings = { depth: 2, bevelEnabled: false };
+    const extrudeSettings = { depth: base_x + 0.1, bevelEnabled: false };
     const bubbleGeometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
     const bubbleMaterial = new THREE.MeshPhysicalMaterial({
       transmission: 0.95,
@@ -102,7 +102,7 @@ function Gotcha() {
       color: 0xc9e8f0,
     });
 
-    const bubble_position_x = -1,
+    const bubble_position_x = -(base_x + 0.1) / 2,
       bubble_position_y = 2,
       bubble_position_z = 0.3;
 
@@ -195,7 +195,7 @@ function Gotcha() {
 
     const crank = evaluator.evaluate(crank_base, crank_handle, ADDITION);
     const crankMesh = evaluator.evaluate(crank, hole, SUBTRACTION);
-    crankMesh.position.y = -0.8;
+    crankMesh.position.y = -1;
     crankMesh.position.x = -0.4;
     scene.add(crankMesh);
     scene.add(result);
@@ -221,33 +221,53 @@ function Gotcha() {
     const sphereMat = new CANNON.Material("sphere");
     const wallMat = new CANNON.Material("wall");
 
-    // Static container: X inner faces ±0.95, Y floor -0.625/ceiling 0.6, Z inner faces -0.45→0.85
     const container = new CANNON.Body({ mass: 0, material: wallMat });
     container.addShape(
-      new CANNON.Box(new CANNON.Vec3(1, 0.05, 0.7)),
-      new CANNON.Vec3(0, -0.625, 0.2),
+      new CANNON.Box(new CANNON.Vec3(0.975, 0.05, 0.8)),
+      new CANNON.Vec3(0, -0.675, 0.3),
     ); // floor
     container.addShape(
-      new CANNON.Box(new CANNON.Vec3(1, 0.05, 0.7)),
-      new CANNON.Vec3(0, 0.7, 0.2),
+      new CANNON.Box(new CANNON.Vec3(0.975, 0.05, 0.8)),
+      new CANNON.Vec3(0, 0.7, 0.3),
     ); // ceiling
     container.addShape(
-      new CANNON.Box(new CANNON.Vec3(0.05, 0.65, 0.7)),
-      new CANNON.Vec3(-1, 0.0, 0.2),
+      new CANNON.Box(new CANNON.Vec3(0.05, 0.7, 0.8)),
+      new CANNON.Vec3(-0.975, 0.0, 0.3),
     ); // left
     container.addShape(
-      new CANNON.Box(new CANNON.Vec3(0.05, 0.65, 0.7)),
-      new CANNON.Vec3(1, 0.0, 0.2),
+      new CANNON.Box(new CANNON.Vec3(0.05, 0.7, 0.8)),
+      new CANNON.Vec3(0.975, 0.0, 0.3),
     ); // right
     container.addShape(
-      new CANNON.Box(new CANNON.Vec3(1, 0.65, 0.05)),
+      new CANNON.Box(new CANNON.Vec3(0.975, 0.7, 0.05)),
       new CANNON.Vec3(0, 0.0, -0.5),
     ); // back
     container.addShape(
-      new CANNON.Box(new CANNON.Vec3(1, 0.65, 0.05)),
-      new CANNON.Vec3(0, 0.0, 0.9),
+      new CANNON.Box(new CANNON.Vec3(0.975, 0.7, 0.05)),
+      new CANNON.Vec3(0, 0.0, 1.1),
     ); // front
     world.addBody(container);
+
+    // Physics walls for the output tube — body sits at tube center, rotated to match the visual
+    // Local frame: Y = tube axis, -Z = gravity-side floor of the tube
+    const tubeBody = new CANNON.Body({ mass: 0, material: wallMat });
+    const tubeQ = new CANNON.Quaternion();
+    tubeQ.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), Math.PI * -0.4);
+    tubeBody.quaternion.copy(tubeQ);
+    tubeBody.position.set(0, -1.4, 0.6);
+    tubeBody.addShape(
+      new CANNON.Box(new CANNON.Vec3(0.3, 0.8, 0.025)),
+      new CANNON.Vec3(0, 0, -0.325),
+    ); // floor
+    tubeBody.addShape(
+      new CANNON.Box(new CANNON.Vec3(0.025, 0.8, 0.3)),
+      new CANNON.Vec3(-0.3, 0, -0.15),
+    ); // left wall
+    tubeBody.addShape(
+      new CANNON.Box(new CANNON.Vec3(0.025, 0.8, 0.3)),
+      new CANNON.Vec3(0.3, 0, -0.15),
+    ); // right wall
+    world.addBody(tubeBody);
 
     const sphereGeo = new THREE.SphereGeometry(0.24, 40, 40);
     const sphereBodies = [];
@@ -356,8 +376,8 @@ function Gotcha() {
         setTimeout(() => {
           spawnBall(
             0,
-            1,
-            1,
+            -1.5,
+            0.57,
             gumballColors[Math.floor(Math.random() * gumballColors.length)],
           );
         }, 500);
