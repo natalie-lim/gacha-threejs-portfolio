@@ -165,7 +165,7 @@ function Gotcha() {
     const coinCut = new Brush(coinSlotGeo, material);
 
     const coin_x = 0.5;
-    const coin_y = 1.2;
+    const coin_y = 1;
     const coin_z = 0.5;
 
     coinOutline.position.x = coin_x;
@@ -177,7 +177,7 @@ function Gotcha() {
     coinCut.updateMatrixWorld();
     coinOutline.updateMatrixWorld();
 
-    const outputGeo = new THREE.CylinderGeometry(0.3, 0.3, 1.5, 20);
+    const outputGeo = new THREE.CylinderGeometry(0.25, 0.25, 1.5, 20);
     const outputHole = new Brush(outputGeo, material);
     outputHole.position.y = 0.6;
     outputHole.position.z = 0.6;
@@ -213,6 +213,9 @@ function Gotcha() {
       0xff6b6b, 0xffa94d, 0xffd43b, 0x69db7c, 0x74c0fc, 0xda77f2, 0xf783ac,
       0x63e6be, 0xa9e34b, 0x4dabf7, 0xb197fc, 0xff8787, 0xff6eb4, 0x40e0d0,
       0xffd700, 0x98fb98, 0xdda0dd, 0xff7f50,
+      0xff4757, 0xff6348, 0xffa502, 0x2ed573, 0x1e90ff, 0x5352ed,
+      0xff6b81, 0x7bed9f, 0x70a1ff, 0xeccc68, 0xa29bfe, 0xff9ff3,
+      0x54a0ff, 0x5f27cd, 0x00d2d3, 0xff9f43, 0xee5a24, 0x0abde3,
     ];
 
     // Physics world — gravity along -Y
@@ -298,18 +301,23 @@ function Gotcha() {
         angularDamping: 0.3,
       });
       const col = i % 3;
-      const row = Math.floor((i % 6) / 3);
-      const layer = Math.floor(i / 6);
+      const row = Math.floor((i % 9) / 3);
+      const layer = Math.floor(i / 9);
       body.position.set(
         [
           -0.5 + Math.random() * 0.03,
           0 + Math.random() * 0.03,
           0.5 + Math.random() * 0.03,
         ][col],
-        [-0.35 + Math.random() * 0.03, 0.15 + Math.random() * 0.03][row],
         [
-          0.05 + Math.random() * 0.03,
-          0.45 + Math.random() * 0.03,
+          -0.35 + Math.random() * 0.03,
+          0.1 + Math.random() * 0.03,
+          0.4 + Math.random() * 0.03,
+        ][row],
+        [
+          -0.25 + Math.random() * 0.03,
+          0.15 + Math.random() * 0.03,
+          0.5 + Math.random() * 0.03,
           0.8 + Math.random() * 0.03,
         ][layer],
       );
