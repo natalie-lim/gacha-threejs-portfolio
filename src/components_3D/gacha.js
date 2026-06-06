@@ -38,8 +38,7 @@ function Gotcha() {
     controls.dampingFactor = 0.05;
 
     controls.screenSpacePanning = false;
-    controls.minDistance = 1;
-    controls.maxDistance = 5;
+    controls.enableZoom = false;
     controls.cursorStyle = "grab";
     controls.maxPolarAngle = Math.PI / 2;
 
@@ -404,7 +403,7 @@ function Gotcha() {
     };
   }, []);
 
-  return <div ref={mountRef} style={{ width: "100vw", height: "100vh" }} />;
+  return <div ref={mountRef} className="border-2" style={{ width: "100vw", height: "100vh" }} />;
 }
 
 export default Gotcha;
