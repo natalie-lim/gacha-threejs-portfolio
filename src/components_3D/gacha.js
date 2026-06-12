@@ -335,8 +335,19 @@ function Gotcha() {
       sphereMeshes.push(sphere);
     });
     let crankRotation = 0;
+    const GRAVITY = 9.82;
+    const gravityDown = new THREE.Vector3();
 
     function animate() {
+      // Gravity always points toward the bottom of the screen, so the
+      // gumballs tumble like a snow globe as the camera orbits.
+      gravityDown.set(0, -1, 0).applyQuaternion(camera.quaternion);
+      world.gravity.set(
+        gravityDown.x * GRAVITY,
+        gravityDown.y * GRAVITY,
+        gravityDown.z * GRAVITY,
+      );
+
       world.fixedStep();
       sphereBodies.forEach((body, i) => {
         sphereMeshes[i].position.copy(body.position);
