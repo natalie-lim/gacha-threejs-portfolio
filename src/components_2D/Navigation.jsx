@@ -1,23 +1,14 @@
 function Nav() {
   return (
-    <nav
-      className="fixed top-4 right-4 z-50 flex items-center justify-between px-6 py-1 rounded-xl"
-      style={{ backgroundColor: "#89a894" }}
-    >
-      <span className="text-white font-semibold text-lg px-5">natalie lim 하 은 </span>
-      <div className="flex gap-6 text-white">
-        <button>
-          about
-        </button>
-        <button>
-          work
-        </button>
-        <button>
-          projects
-        </button>
-        <button>
-          gacha machine
-        </button>
+    <nav className="flex absolute top-4 left-4 right-4">
+      <div className="text-white bg-[#89a894] absolute left-4 font-semibold text-lg px-5 rounded-xl">
+        natalie lim 하 은
+      </div>
+      <div className="flex gap-6 px-5 text-white absolute right-4 text-lg bg-[#89a894] rounded-xl">
+        <button>about</button>
+        <button>work</button>
+        <button>projects</button>
+        <button>gacha machine</button>
       </div>
     </nav>
   );
