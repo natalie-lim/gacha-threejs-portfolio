@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { Evaluator, Brush, SUBTRACTION, ADDITION } from "three-bvh-csg";
@@ -75,6 +75,8 @@ function createMessageSprite(text) {
 
 function Gotcha() {
   const mountRef = useRef(null);
+  const [isFullSize, setIsFullSize] = useState(false);
+  const isFullSizeRef = useRef(false);
 
   useEffect(() => {
     const mount = mountRef.current;
@@ -295,6 +297,38 @@ function Gotcha() {
     glassMesh.position.y = bubble_position_y - 2.0;
     glassMesh.position.z = bubble_position_z;
     scene.add(glassMesh);
+
+    const btnCanvas = document.createElement("canvas");
+    btnCanvas.width = 512;
+    btnCanvas.height = 128;
+    const btnCtx = btnCanvas.getContext("2d");
+    btnCtx.fillStyle = "#0e4749";
+    drawRoundedRect(btnCtx, 4, 4, 504, 120, 16);
+    btnCtx.fill();
+    btnCtx.strokeStyle = "#fffdf2";
+    btnCtx.lineWidth = 4;
+    btnCtx.stroke();
+    btnCtx.fillStyle = "#fffdf2";
+    btnCtx.font = "bold 42px sans-serif";
+    btnCtx.textAlign = "center";
+    btnCtx.textBaseline = "middle";
+    btnCtx.fillText("full size", 256, 64);
+    const btnTex = new THREE.CanvasTexture(btnCanvas);
+    const btnMesh = new THREE.Mesh(
+      new THREE.BoxGeometry(0.9, 0.18, 0.04),
+      new THREE.MeshPhongMaterial({ map: btnTex }),
+    );
+    btnMesh.position.set(0, 0.85, 1);
+    scene.add(btnMesh);
+
+    const resizeObserver = new ResizeObserver(() => {
+      const w = mount.clientWidth;
+      const h = mount.clientHeight;
+      renderer.setSize(w, h);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+    });
+    resizeObserver.observe(mount);
 
     const gumballColors = [
       0xff6b6b, 0xffa94d, 0xffd43b, 0x69db7c, 0x74c0fc, 0xda77f2, 0x63e6be,
@@ -637,6 +671,12 @@ function Gotcha() {
           );
         }, 500);
       }
+      const btnHits = raycaster.intersectObjects([btnMesh], true);
+      if (btnHits.length > 0) {
+        const next = !isFullSizeRef.current;
+        isFullSizeRef.current = next;
+        setIsFullSize(next);
+      }
     }
     renderer.domElement.addEventListener("click", onClick);
     renderer.setPixelRatio(window.devicePixelRatio);
@@ -646,9 +686,11 @@ function Gotcha() {
     return () => {
       renderer.domElement.removeEventListener("click", onClick);
       renderer.setAnimationLoop(null);
+      resizeObserver.disconnect();
       prizes.forEach(cleanupPrize);
       halfGeo.top.dispose();
       halfGeo.bottom.dispose();
+      btnTex.dispose();
       renderer.dispose();
       mount.removeChild(renderer.domElement);
     };
@@ -657,8 +699,18 @@ function Gotcha() {
   return (
     <div
       ref={mountRef}
-      className=""
-      style={{ width: "600px", height: "600px" }}
+      style={
+        isFullSize
+          ? {
+              position: "fixed",
+              top: 0,
+              left: 0,
+              width: "100vw",
+              height: "100vh",
+              zIndex: 999,
+            }
+          : { width: "600px", height: "600px" }
+      }
     />
   );
 }
