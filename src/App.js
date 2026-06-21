@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
-import Gotcha from "./components_3D/gacha";
 import Welcome from "./components_3D/welcome";
 import Nav from "./components_2D/Navigation";
 import GridOverlay from "./components_2D/GridOverlay";
+import About from "./components_2D/About";
+import Gacha from "./components_3D/gacha";
 
 function App() {
   const [visible, setVisible] = useState(true);
-  const [isFullSize, setIsFullSize] = useState(false);
+  const [isGacha, setIsGacha] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => setVisible(false), 3500);
@@ -21,7 +22,7 @@ function App() {
       ) : (
         <div className="relative z-10">
           <div className="flex flex-row justify-between items-center p-24">
-            {!isFullSize && (
+            {!isGacha && (
               <div className="space-y-6">
                 <p className="text-[#0e4749] font-bold text-7xl">
                   nat's gacha machine!{" "}
@@ -32,10 +33,10 @@ function App() {
               </div>
             )}
             <div className="flex flex-col items-center justify-center">
-              <Gotcha isFullSize={isFullSize} onToggleFullSize={setIsFullSize} />
+              <Gacha isFullSize={isGacha} onToggleFullSize={setIsGacha} />
             </div>
           </div>
-          <Nav />
+          <Nav isFullSize={isGacha} onHome={() => setIsGacha(false)} onGacha={() => setIsGacha(true)} />
         </div>
       )}
     </div>
