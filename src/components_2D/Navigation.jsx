@@ -1,6 +1,6 @@
 function Nav() {
   return (
-    <nav className="flex absolute top-4 left-4 right-4">
+    <nav className="flex fixed top-4 left-4 right-4 z-[1000]">
       <div className="text-white bg-[#89a894] absolute left-4 font-semibold text-lg px-5 rounded-lg">
         natalie lim 하 은
       </div>

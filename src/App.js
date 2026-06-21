@@ -6,6 +6,7 @@ import GridOverlay from "./components_2D/GridOverlay";
 
 function App() {
   const [visible, setVisible] = useState(true);
+  const [isFullSize, setIsFullSize] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => setVisible(false), 3500);
@@ -20,17 +21,18 @@ function App() {
       ) : (
         <div className="relative z-10">
           <div className="flex flex-row justify-between items-center p-24">
-            <div className="space-y-6">
-              <p className="text-[#0e4749] font-bold text-7xl">
-                nat's gacha machine!{" "}
-              </p>
-              <p className="font-semibold text-2xl">
-                full-stack • machine learning • agentic systems
-              </p>
-            </div>
-
+            {!isFullSize && (
+              <div className="space-y-6">
+                <p className="text-[#0e4749] font-bold text-7xl">
+                  nat's gacha machine!{" "}
+                </p>
+                <p className="font-semibold text-2xl">
+                  full-stack • machine learning • agentic systems
+                </p>
+              </div>
+            )}
             <div className="flex flex-col items-center justify-center">
-              <Gotcha />
+              <Gotcha isFullSize={isFullSize} onToggleFullSize={setIsFullSize} />
             </div>
           </div>
           <Nav />

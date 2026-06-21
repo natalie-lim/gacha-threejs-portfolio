@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { Evaluator, Brush, SUBTRACTION, ADDITION } from "three-bvh-csg";
@@ -73,10 +73,15 @@ function createMessageSprite(text) {
   return sprite;
 }
 
-function Gotcha() {
+function Gotcha({ isFullSize, onToggleFullSize }) {
   const mountRef = useRef(null);
-  const [isFullSize, setIsFullSize] = useState(false);
   const isFullSizeRef = useRef(false);
+  const onToggleRef = useRef(onToggleFullSize);
+  onToggleRef.current = onToggleFullSize;
+
+  useEffect(() => {
+    isFullSizeRef.current = isFullSize;
+  }, [isFullSize]);
 
   useEffect(() => {
     const mount = mountRef.current;
@@ -675,7 +680,7 @@ function Gotcha() {
       if (btnHits.length > 0) {
         const next = !isFullSizeRef.current;
         isFullSizeRef.current = next;
-        setIsFullSize(next);
+        onToggleRef.current(next);
       }
     }
     renderer.domElement.addEventListener("click", onClick);
