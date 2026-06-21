@@ -1,4 +1,4 @@
-function Nav({ isFullSize = false, onHome, onGacha }) {
+function Nav({ isFullSize = false, onHome, onGacha, onAbout, onWork}) {
   return (
     <nav className="flex fixed top-4 left-4 right-4 z-[1000]">
       <button 
@@ -8,9 +8,8 @@ function Nav({ isFullSize = false, onHome, onGacha }) {
         natalie lim 하 은
       </button>
       <div className="flex gap-6 px-5 text-white absolute right-4 text-lg bg-[#89a894] rounded-lg">
-        <button>about</button>
-        <button>work</button>
-        <button>projects</button>
+        <button onClick={onAbout}>about</button>
+        <button onClick={onWork}>work</button>
         <button onClick={onGacha}>gacha machine</button>
       </div>
     </nav>
