@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Gotcha from "./components_3D/gacha";
 import Welcome from "./components_3D/welcome";
 import Nav from "./components_2D/Navigation";
+import GridOverlay from "./components_2D/GridOverlay";
 
 function App() {
   const [visible, setVisible] = useState(true);
@@ -12,15 +13,20 @@ function App() {
   }, []);
 
   return (
-    <div className="w-screen h-screen bg-[#edfaee]">
+    <div className="w-screen min-h-screen overflow-y-auto">
+      <GridOverlay />
       {visible ? (
         <Welcome text="hi, my name is natalie!" />
       ) : (
-        <div>
+        <div className="relative z-10">
           <div className="flex flex-row justify-between items-center p-24">
             <div className="space-y-6">
-              <p className="text-[#0e4749] font-bold text-7xl">nat's gacha machine! </p>
-              <p className="font-semibold text-2xl">full-stack • machine learning • agentic systems</p>
+              <p className="text-[#0e4749] font-bold text-7xl">
+                nat's gacha machine!{" "}
+              </p>
+              <p className="font-semibold text-2xl">
+                full-stack • machine learning • agentic systems
+              </p>
             </div>
 
             <div className="">
@@ -28,6 +34,11 @@ function App() {
             </div>
           </div>
           <Nav />
+          <div className="min-h-screen flex items-center justify-center">
+            <p className="text-[#0e4749] text-2xl font-semibold">
+              more coming soon
+            </p>
+          </div>
         </div>
       )}
     </div>

@@ -56,7 +56,14 @@ function createMessageSprite(text) {
   ctx.font = "bold 38px sans-serif";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  wrapText(ctx, text, canvas.width / 2, canvas.height / 2, canvas.width - 80, 48);
+  wrapText(
+    ctx,
+    text,
+    canvas.width / 2,
+    canvas.height / 2,
+    canvas.width - 80,
+    48,
+  );
 
   const texture = new THREE.CanvasTexture(canvas);
   const sprite = new THREE.Sprite(
@@ -82,9 +89,28 @@ function Gotcha() {
     renderer.setSize(mount.clientWidth, mount.clientHeight);
     mount.appendChild(renderer.domElement);
     const evaluator = new Evaluator();
-    const light = new THREE.DirectionalLight(0xffffff, 3);
-    light.position.set(-1, 2, 4);
-    scene.add(light);
+
+    // 360° lighting rig — ring of directional lights plus top/bottom lights
+    // so the gacha machine stays evenly lit as the camera orbits around it.
+    const lightRadius = 6;
+    const lightHeight = 3;
+    const ringLightCount = 4;
+    for (let i = 0; i < ringLightCount; i++) {
+      const angle = (i / ringLightCount) * Math.PI * 2;
+      const ringLight = new THREE.DirectionalLight(0xffffff, 1.2);
+      ringLight.position.set(
+        Math.cos(angle) * lightRadius,
+        lightHeight,
+        Math.sin(angle) * lightRadius,
+      );
+      scene.add(ringLight);
+    }
+    const topLight = new THREE.DirectionalLight(0xffffff, 1);
+    topLight.position.set(0, 10, 0);
+    scene.add(topLight);
+    const bottomLight = new THREE.DirectionalLight(0xffffff, 0.6);
+    bottomLight.position.set(0, -10, 0);
+    scene.add(bottomLight);
     const controls = new OrbitControls(camera, renderer.domElement);
     const mouse = new THREE.Vector2();
     const raycaster = new THREE.Raycaster();
@@ -271,11 +297,10 @@ function Gotcha() {
     scene.add(glassMesh);
 
     const gumballColors = [
-      0xff6b6b, 0xffa94d, 0xffd43b, 0x69db7c, 0x74c0fc, 0xda77f2, 
-      0x63e6be, 0xa9e34b, 0x4dabf7, 0xb197fc, 0xff8787, 0xff6eb4, 
-      0xffd700, 0x98fb98, 0xdda0dd, 0xff7f50,
-      0xff4757, 0xff6348, 0xffa502, 0x2ed573, 0x1e90ff, 0x5352ed,
-      0xff6b81, 0x7bed9f, 0x70a1ff, 0xeccc68, 0xa29bfe, 0xff9ff3,
+      0xff6b6b, 0xffa94d, 0xffd43b, 0x69db7c, 0x74c0fc, 0xda77f2, 0x63e6be,
+      0xa9e34b, 0x4dabf7, 0xb197fc, 0xff8787, 0xff6eb4, 0xffd700, 0x98fb98,
+      0xdda0dd, 0xff7f50, 0xff4757, 0xff6348, 0xffa502, 0x2ed573, 0x1e90ff,
+      0x5352ed, 0xff6b81, 0x7bed9f, 0x70a1ff, 0xeccc68, 0xa29bfe, 0xff9ff3,
       0x54a0ff, 0x5f27cd, 0x00d2d3, 0xff9f43, 0xee5a24, 0x0abde3,
     ];
 
@@ -338,9 +363,23 @@ function Gotcha() {
     const sphereMeshes = [];
 
     const halfGeo = {
-      top: new THREE.SphereGeometry(0.24, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2),
+      top: new THREE.SphereGeometry(
+        0.24,
+        32,
+        16,
+        0,
+        Math.PI * 2,
+        0,
+        Math.PI / 2,
+      ),
       bottom: new THREE.SphereGeometry(
-        0.24, 32, 16, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2,
+        0.24,
+        32,
+        16,
+        0,
+        Math.PI * 2,
+        Math.PI / 2,
+        Math.PI / 2,
       ),
     };
     const prizes = [];
@@ -434,14 +473,20 @@ function Gotcha() {
       for (let i = prizes.length - 1; i >= 0; i--) {
         const prize = prizes[i];
         if (prize.phase === "rolling") {
-          const distFromTube = prize.body.position.distanceTo(tubeBody.position);
+          const distFromTube = prize.body.position.distanceTo(
+            tubeBody.position,
+          );
           if (distFromTube > 0.85 || now - prize.phaseStart > 5000) {
             startFlight(prize, now);
           }
         } else if (prize.phase === "flying") {
           const t = Math.min(1, (now - prize.flightStart) / 700);
           const eased = 1 - Math.pow(1 - t, 3);
-          prize.mesh.position.lerpVectors(prize.flightFrom, prize.flightTo, eased);
+          prize.mesh.position.lerpVectors(
+            prize.flightFrom,
+            prize.flightTo,
+            eased,
+          );
           prize.mesh.rotation.y += 0.25;
           prize.mesh.rotation.x += 0.15;
           prize.mesh.scale.setScalar(1 + eased * 0.6);
@@ -609,7 +654,13 @@ function Gotcha() {
     };
   }, []);
 
-  return <div ref={mountRef} className="" style={{ width: "600px", height: "600px" }} />;
+  return (
+    <div
+      ref={mountRef}
+      className=""
+      style={{ width: "600px", height: "600px" }}
+    />
+  );
 }
 
 export default Gotcha;
