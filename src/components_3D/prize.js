@@ -1,9 +1,7 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 
-const PRIZE_COLOR = 0xff6eb4;
-
-function Prize3D({ onBurst }) {
+function Prize3D({ onBurst, color = 0xff6eb4 }) {
   const mountRef = useRef(null);
   const onBurstRef = useRef(onBurst);
   onBurstRef.current = onBurst;
@@ -31,7 +29,7 @@ function Prize3D({ onBurst }) {
 
     const sphereGeo = new THREE.SphereGeometry(0.6, 40, 40);
     const sphereMat = new THREE.MeshPhysicalMaterial({
-      color: PRIZE_COLOR,
+      color: color,
       roughness: 0.1,
       metalness: 0,
       clearcoat: 1,
@@ -59,7 +57,7 @@ function Prize3D({ onBurst }) {
 
       const makeHalfMat = () =>
         new THREE.MeshPhysicalMaterial({
-          color: PRIZE_COLOR,
+          color: color,
           roughness: 0.1,
           metalness: 0,
           clearcoat: 1,
