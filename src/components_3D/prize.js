@@ -124,7 +124,7 @@ function Prize3D({ onBurst, color = 0xff6eb4 }) {
       renderer.dispose();
       if (mount.contains(renderer.domElement)) mount.removeChild(renderer.domElement);
     };
-  }, []);
+  }, [color]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div

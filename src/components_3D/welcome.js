@@ -10,7 +10,7 @@ function Welcome({ text = "" }) {
       setDisplayed(text.slice(0, displayed.length + 1));
     }, 100);
     return () => clearTimeout(timer);
-  }, [displayed]);
+  }, [displayed, text]);
 
   return (
     <div>

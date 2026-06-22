@@ -33,8 +33,8 @@ function App() {
                   </p>
                 </div>
               )}
-            {view == "about" && <About />}
-            {view == "work" && <Work />}
+            {view === "about" && <About />}
+            {view === "work" && <Work />}
             {(view === "home" || view === "gacha") && (
                   <div className="flex flex-col items-center justify-center">
                     <Gacha
