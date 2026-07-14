@@ -1,70 +1,60 @@
-# Getting Started with Create React App
+# 🎰 nat's gacha machine
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A personal portfolio site, reimagined as an interactive gacha (gumball) machine. Instead of static bio sections, visitors crank a handle on a real-time 3D gacha machine and watch a physics-simulated gumball drop, roll down a chute, and burst open into a prize.
 
-## Available Scripts
+Built by [Natalie Lim](https://github.com/natalie-lim) — CS & AI @ UPenn.
 
-In the project directory, you can run:
+**🔗 Live demo: [gacha-liard-seven.vercel.app](https://gacha-liard-seven.vercel.app/)**
 
-### `npm start`
+## Features
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- **3D gacha machine** — modeled at runtime with CSG (constructive solid geometry) boolean operations: the cabinet, dome, coin slot, and dispenser chute are all boxes/cylinders combined and cut from one another rather than pre-made assets.
+- **Physics-driven gumballs** — dozens of gumballs tumble inside the glass dome using a `cannon-es` rigid-body simulation. Gravity is continuously re-oriented to match the camera's orientation, so the balls tumble realistically as you orbit the machine (snow-globe effect).
+- **Click-to-play crank** — click the crank handle to spin it, drop a random gumball into the chute, and watch it fly out, split open, and reveal a hidden message.
+- **Gacha-ball page transitions** — the About and Work pages open with a shaking, bursting gacha ball animation before the content is revealed.
+- **Typewriter intro** — a typed greeting plays on first load before handing off to the main site.
+- **Interactive grid background** — a canvas grid with a mouse-reactive glow effect rendered behind all content.
+- **Fully responsive 3D view** — the gacha machine can be expanded to a full-screen, orbit-controllable view.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Tech Stack
 
-### `npm test`
+- [React 19](https://react.dev/) (via `react-scripts` / Create React App)
+- [Three.js](https://threejs.org/) for 3D rendering
+- [three-bvh-csg](https://github.com/gkjohnson/three-bvh-csg) for constructive solid geometry
+- [cannon-es](https://github.com/pmndrs/cannon-es) for rigid-body physics
+- [Tailwind CSS](https://tailwindcss.com/) for 2D layout/styling
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Getting Started
 
-### `npm run build`
+```bash
+# install dependencies
+npm install
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+# run the dev server at http://localhost:3000
+npm start
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+# build for production
+npm run build
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Project Structure
 
-### `npm run eject`
+```
+src/
+├── App.js                    # top-level view state (home / about / work / gacha)
+├── components_2D/
+│   ├── Navigation.jsx        # top nav bar
+│   ├── About.jsx             # about page (gacha-ball reveal + bio)
+│   ├── Work.jsx               # work experience timeline + projects tab
+│   └── GridOverlay.jsx       # animated background grid
+└── components_3D/
+    ├── welcome.js             # typewriter intro screen
+    ├── gacha.js               # the full gacha machine scene, physics & interactions
+    └── prize.js               # the shaking/bursting gacha ball used on page transitions
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## Interacting with the Gacha Machine
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- **Drag** to orbit the camera around the machine.
+- **Click the crank** to spin it and dispense a gumball prize.
+- Click **"gacha machine"** in the nav to expand it to full screen.
