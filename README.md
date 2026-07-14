@@ -1,4 +1,4 @@
-# 🎰 nat's gacha machine
+# nat's gacha machine
 
 A personal portfolio site, reimagined as an interactive gacha (gumball) machine. Instead of static bio sections, visitors crank a handle on a real-time 3D gacha machine and watch a physics-simulated gumball drop, roll down a chute, and burst open into a prize.
 
