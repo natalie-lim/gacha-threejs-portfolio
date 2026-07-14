@@ -2,7 +2,7 @@
 
 A personal portfolio site, reimagined as an interactive gacha (gumball) machine. Instead of static bio sections, visitors crank a handle on a real-time 3D gacha machine and watch a physics-simulated gumball drop, roll down a chute, and burst open into a prize.
 
-Built by [Natalie Lim](https://github.com/natalie-lim) — CS & AI @ UPenn.
+Built by [Natalie Lim](https://www.linkedin.com/in/natalie-lim1906/) — CS & AI @ UPenn.
 
 **🔗 Live demo: [gacha-liard-seven.vercel.app](https://gacha-liard-seven.vercel.app/)**
 
