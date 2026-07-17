@@ -41,9 +41,48 @@ export function drawWrappedLines(ctx, lines, x, y, lineHeight) {
   lines.forEach((l, i) => ctx.fillText(l, x, startY + i * lineHeight));
 }
 
-export function drawCardBackground(ctx, canvas) {
-  ctx.fillStyle = "#fffdf2";
-  ctx.strokeStyle = "#0e4749";
+function hexToHsl(hex) {
+  const r = parseInt(hex.slice(1, 3), 16) / 255;
+  const g = parseInt(hex.slice(3, 5), 16) / 255;
+  const b = parseInt(hex.slice(5, 7), 16) / 255;
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const l = (max + min) / 2;
+  const d = max - min;
+  let h = 0;
+  let s = 0;
+  if (d !== 0) {
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    switch (max) {
+      case r:
+        h = ((g - b) / d + (g < b ? 6 : 0)) * 60;
+        break;
+      case g:
+        h = ((b - r) / d + 2) * 60;
+        break;
+      default:
+        h = ((r - g) / d + 4) * 60;
+        break;
+    }
+  }
+  return { h, s: s * 100, l: l * 100 };
+}
+
+// Same hue as the source color, pushed toward a barely-there pastel tint.
+export function pastelize(hex) {
+  const { h } = hexToHsl(hex);
+  return `hsl(${h}, 30%, 95%)`;
+}
+
+// Same hue and saturation as the source color, just darkened for contrast.
+export function darken(hex) {
+  const { h, s } = hexToHsl(hex);
+  return `hsl(${h}, ${s}%, 25%)`;
+}
+
+export function drawCardBackground(ctx, canvas, borderColor = "#0e4749") {
+  ctx.fillStyle = pastelize(borderColor);
+  ctx.strokeStyle = borderColor;
   ctx.lineWidth = 10;
   drawRoundedRect(ctx, 8, 8, canvas.width - 16, canvas.height - 16, 28);
   ctx.fill();

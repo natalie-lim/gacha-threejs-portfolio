@@ -8,6 +8,7 @@ import {
   drawCardBackground,
   drawRoundedRect,
   createCardSprite,
+  darken,
 } from "./cardUtils";
 
 // This card is entirely custom: two images (cover on top, Spotify code below)
@@ -38,7 +39,7 @@ function imageHeight(img) {
   return isLoaded(img) ? IMAGE_WIDTH * (img.naturalHeight / img.naturalWidth) : IMAGE_WIDTH;
 }
 
-export default function createFavoriteAlbumPrize() {
+export default function createFavoriteAlbumPrize(borderColor = "#0e4749") {
   const canvas = document.createElement("canvas");
   canvas.width = CARD_WIDTH;
   const ctx = canvas.getContext("2d");
@@ -62,7 +63,7 @@ export default function createFavoriteAlbumPrize() {
   const imageX = (canvas.width - IMAGE_WIDTH) / 2;
 
   function draw() {
-    drawCardBackground(ctx, canvas);
+    drawCardBackground(ctx, canvas, borderColor);
 
     let y = CARD_PADDING;
     preloadedImages.forEach((img, i) => {
@@ -77,7 +78,7 @@ export default function createFavoriteAlbumPrize() {
       y += h + IMAGE_GAP;
     });
 
-    ctx.fillStyle = "#0e4749";
+    ctx.fillStyle = darken(borderColor);
     ctx.font = `bold ${CARD_FONT_SIZE}px sans-serif`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";

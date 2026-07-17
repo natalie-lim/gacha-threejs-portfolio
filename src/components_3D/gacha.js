@@ -235,7 +235,6 @@ function Gacha({ isFullSize, onToggleFullSize }) {
     glassMesh.position.z = bubble_position_z;
     scene.add(glassMesh);
 
-
     const resizeObserver = new ResizeObserver(() => {
       const w = mount.clientWidth;
       const h = mount.clientHeight;
@@ -246,11 +245,11 @@ function Gacha({ isFullSize, onToggleFullSize }) {
     resizeObserver.observe(mount);
 
     const gumballColors = [
-      0xff6b6b, 0xffa94d, 0xffd43b, 0x69db7c, 0x74c0fc, 0xda77f2, 0x63e6be,
-      0xa9e34b, 0x4dabf7, 0xb197fc, 0xff8787, 0xff6eb4, 0xffd700, 0x98fb98,
-      0xdda0dd, 0xff7f50, 0xff4757, 0xff6348, 0xffa502, 0x2ed573, 0x1e90ff,
-      0x5352ed, 0xff6b81, 0x7bed9f, 0x70a1ff, 0xeccc68, 0xa29bfe, 0xff9ff3,
-      0x54a0ff, 0x5f27cd, 0x00d2d3, 0xff9f43, 0xee5a24, 0x0abde3,
+      0xe63946, 0xf4a340, 0xf7d038, 0x4caf50, 0x2e86ab, 0x3d5a9e,
+      0x9b59b6, 0xe84393, 0x00b8a9, 0xf25c54, 0x6c5ce7, 0xff7f50,
+      0xff5252, 0xffb347, 0xffe066, 0x66bb6a, 0x42a5f5, 0x5c6bc0,
+      0xba68c8, 0xf06292, 0x26a69a, 0xff8a65, 0x7e57c2, 0xff6f91,
+      0xc0ca33, 0x00acc1, 0xef5350, 0xffa726, 0xab47bc, 0x8d6e63,
     ];
 
     // Physics world — gravity along -Y
@@ -567,7 +566,8 @@ function Gacha({ isFullSize, onToggleFullSize }) {
       scene.add(prize.top, prize.bottom);
 
       const createPrize = PRIZES[Math.floor(Math.random() * PRIZES.length)];
-      prize.label = createPrize();
+      const borderColor = `#${prize.color.toString(16).padStart(6, "0")}`;
+      prize.label = createPrize(borderColor);
       prize.label.position.copy(prize.flightTo);
       prize.label.scale.set(0, 0, 1);
       scene.add(prize.label);
@@ -590,7 +590,6 @@ function Gacha({ isFullSize, onToggleFullSize }) {
           );
         }, 500);
       }
-
     }
     renderer.domElement.addEventListener("click", onClick);
     renderer.setPixelRatio(window.devicePixelRatio);

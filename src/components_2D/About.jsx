@@ -23,7 +23,7 @@ function About() {
 
   function handleBurst() {
     setRevealed(true);
-    setTimeout(() => setShowPrize(false), 900);
+    setTimeout(() => setShowPrize(false), 1100);
   }
 
   useEffect(() => {

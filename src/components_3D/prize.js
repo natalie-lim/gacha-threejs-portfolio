@@ -13,7 +13,7 @@ function Prize3D({ onBurst, color = 0xff6eb4 }) {
       75,
       mount.clientWidth / mount.clientHeight,
       0.1,
-      1000
+      1000,
     );
     camera.position.set(0, 0, 4);
 
@@ -39,8 +39,24 @@ function Prize3D({ onBurst, color = 0xff6eb4 }) {
     scene.add(sphere);
 
     const halfGeo = {
-      top: new THREE.SphereGeometry(0.6, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2),
-      bottom: new THREE.SphereGeometry(0.6, 32, 16, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2),
+      top: new THREE.SphereGeometry(
+        0.6,
+        32,
+        16,
+        0,
+        Math.PI * 2,
+        0,
+        Math.PI / 2,
+      ),
+      bottom: new THREE.SphereGeometry(
+        0.6,
+        32,
+        16,
+        0,
+        Math.PI * 2,
+        Math.PI / 2,
+        Math.PI / 2,
+      ),
     };
 
     let phase = "shaking";
@@ -69,7 +85,6 @@ function Prize3D({ onBurst, color = 0xff6eb4 }) {
       topHalf = new THREE.Mesh(halfGeo.top, makeHalfMat());
       bottomHalf = new THREE.Mesh(halfGeo.bottom, makeHalfMat());
       scene.add(topHalf, bottomHalf);
-      onBurstRef.current();
     }
 
     function animate() {
@@ -83,7 +98,7 @@ function Prize3D({ onBurst, color = 0xff6eb4 }) {
         sphere.rotation.z = Math.sin(elapsed * 16) * 0.18 * intensity;
         sphere.rotation.x = Math.sin(elapsed * 13 + 0.5) * 0.1 * intensity;
       } else if (phase === "bursting") {
-        const t = Math.min(1, (now - burstStart) / 700);
+        const t = Math.min(1, (now - burstStart) / 300);
         const eased = 1 - Math.pow(1 - t, 3);
         topHalf.position.y = eased * 1.5;
         topHalf.rotation.z = -eased * 0.9;
@@ -91,6 +106,10 @@ function Prize3D({ onBurst, color = 0xff6eb4 }) {
         bottomHalf.rotation.z = eased * 0.9;
         topHalf.material.opacity = 1 - t;
         bottomHalf.material.opacity = 1 - t;
+        if (t >= 1) {
+          phase = "burst";
+          onBurstRef.current();
+        }
       }
 
       renderer.render(scene, camera);
@@ -122,7 +141,8 @@ function Prize3D({ onBurst, color = 0xff6eb4 }) {
       halfGeo.top.dispose();
       halfGeo.bottom.dispose();
       renderer.dispose();
-      if (mount.contains(renderer.domElement)) mount.removeChild(renderer.domElement);
+      if (mount.contains(renderer.domElement))
+        mount.removeChild(renderer.domElement);
     };
   }, [color]); // eslint-disable-line react-hooks/exhaustive-deps
 
