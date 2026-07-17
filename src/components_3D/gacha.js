@@ -3,75 +3,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { Evaluator, Brush, SUBTRACTION, ADDITION } from "three-bvh-csg";
 import * as CANNON from "cannon-es";
-
-const PRIZE_MESSAGES = [
-  "you got a lucky charm!",
-  "have an amazing day :)",
-  "thanks for stopping by!",
-  "good things are coming your way",
-  "you found a hidden message!",
-  "keep being awesome!",
-];
-
-function drawRoundedRect(ctx, x, y, width, height, radius) {
-  ctx.beginPath();
-  ctx.moveTo(x + radius, y);
-  ctx.arcTo(x + width, y, x + width, y + height, radius);
-  ctx.arcTo(x + width, y + height, x, y + height, radius);
-  ctx.arcTo(x, y + height, x, y, radius);
-  ctx.arcTo(x, y, x + width, y, radius);
-  ctx.closePath();
-}
-
-function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
-  const words = text.split(" ");
-  const lines = [];
-  let line = "";
-  words.forEach((word) => {
-    const test = line ? `${line} ${word}` : word;
-    if (line && ctx.measureText(test).width > maxWidth) {
-      lines.push(line);
-      line = word;
-    } else {
-      line = test;
-    }
-  });
-  lines.push(line);
-  const startY = y - ((lines.length - 1) * lineHeight) / 2;
-  lines.forEach((l, i) => ctx.fillText(l, x, startY + i * lineHeight));
-}
-
-function createMessageSprite(text) {
-  const canvas = document.createElement("canvas");
-  canvas.width = 512;
-  canvas.height = 256;
-  const ctx = canvas.getContext("2d");
-  ctx.fillStyle = "#fffdf2";
-  ctx.strokeStyle = "#0e4749";
-  ctx.lineWidth = 10;
-  drawRoundedRect(ctx, 8, 8, canvas.width - 16, canvas.height - 16, 28);
-  ctx.fill();
-  ctx.stroke();
-  ctx.fillStyle = "#0e4749";
-  ctx.font = "bold 38px sans-serif";
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  wrapText(
-    ctx,
-    text,
-    canvas.width / 2,
-    canvas.height / 2,
-    canvas.width - 80,
-    48,
-  );
-
-  const texture = new THREE.CanvasTexture(canvas);
-  const sprite = new THREE.Sprite(
-    new THREE.SpriteMaterial({ map: texture, transparent: true }),
-  );
-  sprite.scale.set(1.6, 0.8, 1);
-  return sprite;
-}
+import PRIZES from "./prizes";
 
 function Gacha({ isFullSize, onToggleFullSize }) {
   const mountRef = useRef(null);
@@ -517,7 +449,12 @@ function Gacha({ isFullSize, onToggleFullSize }) {
           prize.bottom.rotation.z = eased * 0.5;
           const labelT = Math.max(0, (t - 0.3) / 0.7);
           const labelEase = labelT * labelT * (3 - 2 * labelT);
-          prize.label.scale.set(1.6 * labelEase, 0.8 * labelEase, 1);
+          const targetScale = prize.label.userData.targetScale;
+          prize.label.scale.set(
+            targetScale.x * labelEase,
+            targetScale.y * labelEase,
+            1,
+          );
           if (t >= 1) {
             prize.phase = "holding";
             prize.holdStart = now;
@@ -629,9 +566,8 @@ function Gacha({ isFullSize, onToggleFullSize }) {
       prize.bottom.position.copy(prize.flightTo);
       scene.add(prize.top, prize.bottom);
 
-      prize.label = createMessageSprite(
-        PRIZE_MESSAGES[Math.floor(Math.random() * PRIZE_MESSAGES.length)],
-      );
+      const createPrize = PRIZES[Math.floor(Math.random() * PRIZES.length)];
+      prize.label = createPrize();
       prize.label.position.copy(prize.flightTo);
       prize.label.scale.set(0, 0, 1);
       scene.add(prize.label);
