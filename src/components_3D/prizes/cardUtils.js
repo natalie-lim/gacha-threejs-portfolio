@@ -94,6 +94,9 @@ export function drawCardBackground(ctx, canvas, borderColor = "#0e4749") {
 // Call updateCardScale after any later resize (e.g. once an async image loads).
 export function createCardSprite(canvas) {
   const texture = new THREE.CanvasTexture(canvas);
+  // The canvas is drawn in sRGB; tag the texture so the renderer converts it
+  // correctly instead of treating the pixels as linear (which oversaturates).
+  texture.colorSpace = THREE.SRGBColorSpace;
   const sprite = new THREE.Sprite(
     new THREE.SpriteMaterial({ map: texture, transparent: true }),
   );

@@ -60,6 +60,9 @@ export default function createSkatingPrize(borderColor = "#0e4749") {
     CARD_PADDING + vHeight + TEXT_GAP + lines.length * CARD_LINE_HEIGHT + CARD_PADDING;
 
   const { sprite, texture } = createCardSprite(canvas);
+  // Keep this card on screen longer than the others so the video has time to
+  // play (gacha.js reads this in the "holding" phase).
+  sprite.userData.holdDuration = 10000;
   const videoX = (canvas.width - VIDEO_WIDTH) / 2;
 
   function draw() {

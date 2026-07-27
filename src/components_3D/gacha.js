@@ -446,6 +446,10 @@ function Gacha({ isFullSize, onToggleFullSize }) {
           prize.top.rotation.z = -eased * 0.5;
           prize.bottom.position.y = prize.flightTo.y - eased * 0.4;
           prize.bottom.rotation.z = eased * 0.5;
+          // Fade the split shell out as it flies apart so only the card is left
+          // behind, instead of the halves lingering through the whole hold.
+          prize.top.material.opacity = 1 - t;
+          prize.bottom.material.opacity = 1 - t;
           const labelT = Math.max(0, (t - 0.3) / 0.7);
           const labelEase = labelT * labelT * (3 - 2 * labelT);
           const targetScale = prize.label.userData.targetScale;
@@ -459,18 +463,17 @@ function Gacha({ isFullSize, onToggleFullSize }) {
             prize.holdStart = now;
           }
         } else if (prize.phase === "holding") {
-          if (now - prize.holdStart > 2500) {
+          // Each card can request its own on-screen time via userData; default 3s.
+          const holdDuration = prize.label.userData.holdDuration ?? 3000;
+          if (now - prize.holdStart > holdDuration) {
             prize.phase = "fading";
             prize.fadeStart = now;
           }
         } else if (prize.phase === "fading") {
+          // The shell halves are already gone (faded out during the break), so
+          // only the card fades here.
           const t = Math.min(1, (now - prize.fadeStart) / 500);
-          const opacity = 1 - t;
-          prize.top.material.opacity = opacity;
-          prize.bottom.material.opacity = opacity;
-          prize.label.material.opacity = opacity;
-          prize.top.position.y = prize.flightTo.y + 0.4 + t * 0.3;
-          prize.bottom.position.y = prize.flightTo.y - 0.4 - t * 0.3;
+          prize.label.material.opacity = 1 - t;
           if (t >= 1) {
             cleanupPrize(prize);
             prizes.splice(i, 1);
