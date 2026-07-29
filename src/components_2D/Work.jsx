@@ -82,9 +82,9 @@ function JobCard({ job, align }) {
   );
 }
 
-// Just the timeline. The gumball burst that gates it, the tab switcher, and the
-// links all live in WorkPage — `revealed` is the one thing this needs from it, so
-// the per-job stagger below starts in step with the rest of the page.
+// Just the timeline. The gumball burst that gates it, the heading, and the links
+// all live in WorkPage — `revealed` is the one thing this needs from it, so the
+// per-job stagger below starts in step with the rest of the page.
 function Work({ revealed = false }) {
   return (
     <div className="relative w-full">

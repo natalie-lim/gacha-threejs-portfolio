@@ -2,17 +2,10 @@ import { useState } from "react";
 import Prize3D from "../components_3D/prize";
 
 import Work from "./Work";
-import Projects from "./Projects";
 
-
-// Owns the gumball that has to burst before the page reveals itself. Both bits of
-// state live here rather than in Work so switching tabs doesn't replay the burst:
-// App unmounts this whole component when you navigate away, so a fresh burst is
-// tied to arriving on the page — leave and come back to see it again.
 function WorkPage() {
   const [showPrize, setShowPrize] = useState(true);
   const [revealed, setRevealed] = useState(false);
-  const [tab, setTab] = useState("work");
 
   function handleBurst() {
     setRevealed(true);
@@ -25,7 +18,7 @@ function WorkPage() {
       {showPrize && <Prize3D onBurst={handleBurst} color="#9381FF" />}
 
       <div className="flex flex-col items-start justify-center mx-6 md:mx-12 gap-8 md:gap-16">
-        {/* Tab header */}
+        {/* Heading */}
         <div
           style={{
             opacity: revealed ? 1 : 0,
@@ -33,27 +26,13 @@ function WorkPage() {
             transition: "opacity 0.6s ease 0.2s, transform 0.6s ease 0.2s",
           }}
         >
-          <div className="flex flex-row gap-2 items-center">
-            <button
-              onClick={() => setTab("work")}
-              className={`font-semibold text-2xl md:text-4xl transition-opacity ${tab === "work" ? "text-[#0e4749] opacity-100" : "text-[#0e4749] opacity-30"}`}
-            >
-              Work
-            </button>
-            <span className="text-[#0e4749] text-2xl md:text-4xl font-semibold opacity-30">/</span>
-            <button
-              onClick={() => setTab("projects")}
-              className={`font-semibold text-2xl md:text-4xl transition-opacity ${tab === "projects" ? "text-[#0e4749] opacity-100" : "text-[#0e4749] opacity-30"}`}
-            >
-              Projects
-            </button>
-          </div>
+          <p className="font-semibold text-2xl md:text-4xl text-[#0e4749]">
+            Work Experience
+          </p>
         </div>
 
         {/* Timeline */}
-        {tab === "work" && <Work revealed={revealed} />}
-
-        {tab === "projects" && <Projects revealed={revealed} />}
+        <Work revealed={revealed} />
 
         {/* Links */}
         <div
