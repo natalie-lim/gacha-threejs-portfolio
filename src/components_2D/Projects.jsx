@@ -54,88 +54,12 @@ const WORK_EXPERIENCE = [
   },
 ];
 
-function JobCard({ job, align }) {
-  return (
-    <div
-      className={`flex flex-col gap-1 w-full max-w-sm ${align === "right" ? "items-start text-left" : "items-end text-right"}`}
-    >
-      <p className="font-semibold text-[#0e4749] text-base leading-tight">
-        {job.title}
-      </p>
-      <p className="text-[#0e4749] text-sm opacity-70">
-        {job.company}
-        {job.location ? ` · ${job.location}` : ""}
-      </p>
-      <p className="text-[#0e4749] text-xs opacity-50 mb-1">{job.dates}</p>
-      <ul className="space-y-1.5">
-        {job.bullets.map((b, j) => (
-          <li
-            key={j}
-            className={`text-[#0e4749] text-sm flex gap-2 ${align === "right" ? "flex-row" : "flex-row-reverse"}`}
-          >
-            <span className="mt-1.5 shrink-0 w-1 h-1 rounded-full bg-[#0e4749] opacity-60" />
-            {b}
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
-// Just the timeline. The gumball burst that gates it, the tab switcher, and the
-// links all live in WorkPage — `revealed` is the one thing this needs from it, so
-// the per-job stagger below starts in step with the rest of the page.
-function Work({ revealed = false }) {
+function Projects({ revealed = false }) {
   return (
     <div className="relative w-full">
-      {/* Center vertical line */}
-      <div className="absolute left-1/2 top-0 bottom-0 w-px bg-[#0e4749] opacity-20 -translate-x-1/2" />
-
-      {WORK_EXPERIENCE.map((job, i) => {
-        const isLeft = i % 2 === 0;
-        return (
-          <div
-            key={i}
-            className="relative flex items-center mb-12 md:mb-20"
-            style={{
-              opacity: revealed ? 1 : 0,
-              transform: revealed ? "translateY(0)" : "translateY(24px)",
-              transition: `opacity 0.5s ease ${0.3 + i * 0.12}s, transform 0.5s ease ${0.3 + i * 0.12}s`,
-            }}
-          >
-            {/* Left half */}
-            <div className="w-1/2 pr-4 md:pr-10 flex justify-end">
-              {isLeft ? (
-                <JobCard job={job} align="right" />
-              ) : (
-                <img
-                  src={job.logo}
-                  alt={job.company}
-                  className="w-20 h-20 md:w-32 md:h-32 object-contain rounded-xl"
-                />
-              )}
-            </div>
-
-            {/* Center dot */}
-            <div className="absolute left-1/2 -translate-x-1/2 w-3.5 h-3.5 rounded-full bg-[#0e4749] opacity-70 z-10 ring-4 ring-white" />
-
-            {/* Right half */}
-            <div className="w-1/2 pl-4 md:pl-10 flex justify-start">
-              {isLeft ? (
-                <img
-                  src={job.logo}
-                  alt={job.company}
-                  className="w-20 h-20 md:w-32 md:h-32 object-contain rounded-xl"
-                />
-              ) : (
-                <JobCard job={job} align="right" />
-              )}
-            </div>
-          </div>
-        );
-      })}
+      <p>Coming soon! </p>
     </div>
   );
 }
 
-export default Work;
+export default Projects;

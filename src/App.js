@@ -4,7 +4,7 @@ import Nav from "./components_2D/Navigation";
 import GridOverlay from "./components_2D/GridOverlay";
 import About from "./components_2D/About";
 import Gacha from "./components_3D/gacha";
-import Work from "./components_2D/Work";
+import WorkPage from "./components_2D/WorkPage";
 
 function App() {
   const [isWelcome, setIsWelcome] = useState(true);
@@ -38,7 +38,7 @@ function App() {
                 </div>
               )}
             {view === "about" && <About />}
-            {view === "work" && <Work />}
+            {view === "work" && <WorkPage />}
             {(view === "home" || view === "gacha") && (
                   <div className="flex flex-col items-center justify-center">
                     <Gacha
