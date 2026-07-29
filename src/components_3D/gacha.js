@@ -3,7 +3,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { Evaluator, Brush, SUBTRACTION, ADDITION } from "three-bvh-csg";
 import * as CANNON from "cannon-es";
-import PRIZES from "./prizes";
+import PRIZES, { preloadPrizes } from "./prizes";
 
 function Gacha({ isFullSize, onToggleFullSize }) {
   const mountRef = useRef(null);
@@ -486,6 +486,10 @@ function Gacha({ isFullSize, onToggleFullSize }) {
             1,
           );
           if (t >= 1) {
+            // Fully faded — stop drawing them at all rather than leaving two
+            // invisible meshes in the render list for the whole hold.
+            prize.top.visible = false;
+            prize.bottom.visible = false;
             prize.phase = "holding";
             prize.holdStart = now;
           }
@@ -587,6 +591,13 @@ function Gacha({ isFullSize, onToggleFullSize }) {
           clearcoatRoughness: 0.05,
           side: THREE.DoubleSide,
           transparent: true,
+          // The halves sit at the exact center of the card sprite, and both are
+          // transparent, so three.js can't order them by depth and falls back to
+          // creation order — the shell draws first. With depth writing left on it
+          // stamped the depth buffer at the sphere's surface, and the card's
+          // pixels behind that failed the depth test: a hemisphere-shaped hole
+          // punched out of the card that stayed visible even at opacity 0.
+          depthWrite: false,
         });
 
       prize.top = new THREE.Mesh(halfGeo.top, makeHalfMaterial());
@@ -618,6 +629,9 @@ function Gacha({ isFullSize, onToggleFullSize }) {
       raycaster.setFromCamera(pointer, camera);
       const hits = raycaster.intersectObjects([crankMesh, crankHitArea], true);
       if (hits.length > 0) {
+        // First sign the visitor wants a prize: start fetching the artwork now,
+        // which the roll and flight animations then cover. Idempotent.
+        preloadPrizes();
         spinCrank();
         setTimeout(() => {
           spawnBall(

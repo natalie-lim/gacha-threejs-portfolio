@@ -6,7 +6,7 @@ import {
   getWrappedLines,
   drawWrappedLines,
   drawCardBackground,
-  drawRoundedRect,
+  drawContained,
   createCardSprite,
   darken,
 } from "./cardUtils";
@@ -21,26 +21,38 @@ const VIDEO_PATH = "/prizes/skating.mp4";
 const VIDEO_WIDTH = 260;
 const TEXT_GAP = 50;
 
-// One shared, muted, looping video preloaded at module import so its real
-// aspect ratio is known before any card is popped (same reasoning as the
-// preloaded images in favoriteAlbum.js). Muted + playsInline is what lets it
-// autoplay without a user gesture and without going fullscreen on iOS.
+// One shared, muted, looping video. Muted + playsInline is what lets it autoplay
+// without a user gesture and without going fullscreen on iOS.
+//
+// Only the metadata is fetched at import — a few KB of header, enough to know the
+// real aspect ratio before any card is popped (the layout is locked in at build
+// time and can't be redone later). The multi-megabyte body waits for preload(),
+// which gacha.js calls on the first crank pull.
 const video = document.createElement("video");
 video.src = VIDEO_PATH;
 video.muted = true;
 video.loop = true;
 video.playsInline = true;
 video.setAttribute("playsinline", "");
-video.preload = "auto";
+video.preload = "metadata";
 video.load();
+
+let warmed = false;
 
 function videoReady() {
   // readyState >= 2 (HAVE_CURRENT_DATA) means there is a frame to draw.
   return video.readyState >= 2 && video.videoWidth > 0;
 }
 
+// Dimensions land with the metadata (readyState 1), well before there's any frame
+// to paint. Layout only needs this much, which is why metadata alone is fetched
+// up front — don't gate it on videoReady() or the card falls back to a square.
+function hasDimensions() {
+  return video.videoWidth > 0;
+}
+
 function videoHeight() {
-  return videoReady()
+  return hasDimensions()
     ? VIDEO_WIDTH * (video.videoHeight / video.videoWidth)
     : VIDEO_WIDTH;
 }
@@ -69,11 +81,7 @@ export default function createSkatingPrize(borderColor = "#0e4749") {
     drawCardBackground(ctx, canvas, borderColor);
 
     if (videoReady()) {
-      ctx.save();
-      drawRoundedRect(ctx, videoX, CARD_PADDING, VIDEO_WIDTH, vHeight, 16);
-      ctx.clip();
-      ctx.drawImage(video, videoX, CARD_PADDING, VIDEO_WIDTH, vHeight);
-      ctx.restore();
+      drawContained(ctx, video, videoX, CARD_PADDING, VIDEO_WIDTH, vHeight);
     }
 
     ctx.fillStyle = darken(borderColor);
@@ -106,3 +114,12 @@ export default function createSkatingPrize(borderColor = "#0e4749") {
 
   return sprite;
 }
+
+// Upgrade from metadata-only to the full download. Guarded because load() resets
+// playback, so calling it again mid-card would restart the video.
+createSkatingPrize.preload = () => {
+  if (warmed) return;
+  warmed = true;
+  video.preload = "auto";
+  video.load();
+};

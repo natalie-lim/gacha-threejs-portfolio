@@ -6,7 +6,7 @@ import {
   getWrappedLines,
   drawWrappedLines,
   drawCardBackground,
-  drawRoundedRect,
+  drawContained,
   createCardSprite,
   darken,
 } from "./cardUtils";
@@ -14,7 +14,8 @@ import {
 // A reusable card type: one or more images stacked over a caption, each image
 // sized to its own real aspect ratio. Call this once per card (see index.js)
 // with the image paths and caption; it returns a prize function that gacha.js
-// invokes with the popped gumball's border color.
+// invokes with the popped gumball's border color, carrying a .preload() that
+// fetches the images without building anything.
 const IMAGE_WIDTH = 260;
 const IMAGE_GAP = 16;
 const TEXT_GAP = 50;
@@ -28,17 +29,27 @@ function imageHeight(img) {
 }
 
 export default function createStaticImagesPrize({ imagePaths, text }) {
-  // Preloaded as soon as this factory is called at module import — long before
-  // any prize can be popped — so real aspect ratios are known by the time a
-  // card is built. The canvas/sprite are sized once and never resized again:
-  // resizing after the pop-in animation started caused a "double card" glitch.
-  const preloadedImages = imagePaths.map((src) => {
-    const img = new Image();
-    img.src = src;
-    return img;
-  });
+  // Nothing is fetched at import. These are multi-megabyte photos, and someone
+  // who never turns the crank shouldn't pay to download every prize on the site.
+  // gacha.js calls preload() on the first crank pull instead, which leaves the
+  // roll and flight animations (~1.2s at the very least) to fetch and decode.
+  let images = null;
 
-  return function createCard(borderColor = "#0e4749") {
+  // Idempotent: the Image objects are created once and reused by every card, so
+  // repeat pops of the same prize come from cache.
+  function loadImages() {
+    if (!images) {
+      images = imagePaths.map((src) => {
+        const img = new Image();
+        img.src = src;
+        return img;
+      });
+    }
+    return images;
+  }
+
+  function createCard(borderColor = "#0e4749") {
+    const preloadedImages = loadImages();
     const canvas = document.createElement("canvas");
     canvas.width = CARD_WIDTH;
     const ctx = canvas.getContext("2d");
@@ -67,13 +78,7 @@ export default function createStaticImagesPrize({ imagePaths, text }) {
       let y = CARD_PADDING;
       preloadedImages.forEach((img, i) => {
         const h = imageHeights[i];
-        if (isLoaded(img)) {
-          ctx.save();
-          drawRoundedRect(ctx, imageX, y, IMAGE_WIDTH, h, 16);
-          ctx.clip();
-          ctx.drawImage(img, imageX, y, IMAGE_WIDTH, h);
-          ctx.restore();
-        }
+        if (isLoaded(img)) drawContained(ctx, img, imageX, y, IMAGE_WIDTH, h);
         y += h + IMAGE_GAP;
       });
 
@@ -93,5 +98,10 @@ export default function createStaticImagesPrize({ imagePaths, text }) {
     });
 
     return sprite;
-  };
+  }
+
+  // Warms the cache without building anything. Safe to call repeatedly.
+  createCard.preload = loadImages;
+
+  return createCard;
 }

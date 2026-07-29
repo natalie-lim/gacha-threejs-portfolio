@@ -33,6 +33,25 @@ export function drawRoundedRect(ctx, x, y, width, height, radius) {
   ctx.closePath();
 }
 
+// Paint an <img> or <video> inside its slot at the source's own aspect ratio,
+// centered and corner-rounded, rather than stretching it to fill. Only bites when
+// a slot was laid out before the source's dimensions were known — the layout is
+// locked by then, so the image has to give way, and letterboxing beats distortion.
+export function drawContained(ctx, source, slotX, slotY, slotW, slotH) {
+  const srcW = source.naturalWidth || source.videoWidth;
+  const srcH = source.naturalHeight || source.videoHeight;
+  const scale = Math.min(slotW / srcW, slotH / srcH);
+  const w = srcW * scale;
+  const h = srcH * scale;
+  const x = slotX + (slotW - w) / 2;
+  const y = slotY + (slotH - h) / 2;
+  ctx.save();
+  drawRoundedRect(ctx, x, y, w, h, 16);
+  ctx.clip();
+  ctx.drawImage(source, x, y, w, h);
+  ctx.restore();
+}
+
 export function getWrappedLines(ctx, text, maxWidth) {
   const words = text.split(" ");
   const lines = [];
@@ -112,7 +131,16 @@ export function createCardSprite(canvas) {
   // correctly instead of treating the pixels as linear (which oversaturates).
   texture.colorSpace = THREE.SRGBColorSpace;
   const sprite = new THREE.Sprite(
-    new THREE.SpriteMaterial({ map: texture, transparent: true }),
+    new THREE.SpriteMaterial({
+      map: texture,
+      transparent: true,
+      // The renderer runs ACES filmic tone mapping for the gacha machine, and it
+      // applies to sprites too. That's a film-emulation curve meant for lit 3D
+      // geometry: it rolls off and desaturates vivid colors, pushing saturated
+      // pinks and reds toward orange. A card is flat UI, so opt it out and let
+      // the canvas pixels reach the screen as drawn.
+      toneMapped: false,
+    }),
   );
   sprite.userData.targetScale = new THREE.Vector2();
   updateCardScale(sprite, canvas);

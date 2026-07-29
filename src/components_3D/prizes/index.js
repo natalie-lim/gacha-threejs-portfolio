@@ -20,6 +20,25 @@ const bakingAndCooking = createStaticImagesPrize({
   text: "baking and cooking with friends :)",
 });
 
-const PRIZES = [createSkatingPrize, bakingAndCooking, favoriteAlbum, beli];
+const nails = createStaticImagesPrize({
+  imagePaths: ["/prizes/nails1.png", "/prizes/nails2.png"],
+  text: "i also do gelX nails ❤️",
+});
+
+const PRIZES = [
+  createSkatingPrize,
+  bakingAndCooking,
+  favoriteAlbum,
+  beli,
+  nails,
+];
+
+// Fetch every prize's images and video. Deliberately NOT called at import: that
+// downloaded ~17MB of photos and video on every page load, including for visitors
+// who never touched the machine. gacha.js calls this on the first crank pull, so
+// the roll and flight animations cover the fetch.
+export function preloadPrizes() {
+  PRIZES.forEach((createPrize) => createPrize.preload?.());
+}
 
 export default PRIZES;
