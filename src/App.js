@@ -15,20 +15,24 @@ function App() {
     return () => clearTimeout(timer);
   }, []);
 
+  // w-full, not w-screen: 100vw includes the scrollbar's width, which is itself
+  // enough to make the page scroll sideways once the content is tall.
   return (
-    <div className="w-screen min-h-screen overflow-y-auto">
+    <div className="w-full min-h-screen overflow-x-hidden overflow-y-auto">
       <GridOverlay />
       {isWelcome ? (
         <Welcome text="hi, my name is natalie!" />
       ) : (
         <div className="relative z-10">
-          <div className="flex flex-row justify-between items-center p-24">
+          {/* Below md the row becomes a column, so the gacha machine lands
+              under the heading instead of squeezing in beside it. */}
+          <div className="flex flex-col md:flex-row justify-between items-center gap-10 px-6 py-20 md:p-24">
             {view === "home" && (
                 <div className="space-y-6">
-                  <p className="text-[#0e4749] font-bold text-7xl">
+                  <p className="text-[#0e4749] font-bold text-4xl sm:text-5xl md:text-7xl">
                     nat's gacha machine!{" "}
                   </p>
-                  <p className="font-semibold text-2xl">
+                  <p className="font-semibold text-lg md:text-2xl">
                     full-stack • machine learning • agentic systems
                   </p>
                 </div>

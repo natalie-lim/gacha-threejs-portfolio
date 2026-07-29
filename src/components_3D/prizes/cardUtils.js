@@ -8,6 +8,20 @@ export const CARD_PADDING = 30;
 export const CARD_FONT_SIZE = 30;
 export const CARD_LINE_HEIGHT = 38;
 export const SPRITE_WIDTH = 2.1;
+export const SPRITE_WIDTH_MOBILE = 1.25;
+export const MOBILE_BREAKPOINT = 768;
+
+// A card sprite is flown to a point ~2 world units in front of a 75° camera, so
+// the visible height there is fixed (~3.07 units) but the visible width is that
+// times the viewport's aspect ratio. On a portrait phone only ~1.7 units are in
+// frame, so the desktop width would hang off both edges — use a narrower card.
+export function getSpriteWidth() {
+  if (window.innerWidth <= MOBILE_BREAKPOINT) {
+    return SPRITE_WIDTH_MOBILE;
+  } else {
+    return SPRITE_WIDTH;
+  }
+}
 
 export function drawRoundedRect(ctx, x, y, width, height, radius) {
   ctx.beginPath();
@@ -105,9 +119,9 @@ export function createCardSprite(canvas) {
   return { sprite, texture };
 }
 
+// Read at card-build time (not at import), so a device rotated between pops
+// gets the width that matches the viewport it's about to be shown in.
 export function updateCardScale(sprite, canvas) {
-  sprite.userData.targetScale.set(
-    SPRITE_WIDTH,
-    SPRITE_WIDTH * (canvas.height / canvas.width),
-  );
+  const width = getSpriteWidth();
+  sprite.userData.targetScale.set(width, width * (canvas.height / canvas.width));
 }

@@ -48,7 +48,7 @@ function About() {
     <div className="w-full my-24">
       {showPrize && <Prize3D onBurst={handleBurst} />}
 
-      <div className="flex flex-row items-start justify-center mx-12 gap-16">
+      <div className="flex flex-col md:flex-row items-start justify-center mx-6 md:mx-12 gap-8 md:gap-16">
         <div className="space-y-6">
           <div
             className=""
@@ -71,7 +71,7 @@ function About() {
           />
         </div>
         <div className="flex flex-col items-center justify-start">
-          <div className="space-y-4 pt-2 mt-24">
+          <div className="space-y-4 pt-2 mt-0 md:mt-24">
             {MESSAGES.map((msg, i) => (
               <Blurb
                 key={i}
@@ -87,7 +87,7 @@ function About() {
 
           {/* Links */}
           <div
-            className="flex flex-row items-center justify-center w-full gap-20 my-24"
+            className="flex flex-row items-center justify-center w-full gap-10 md:gap-20 my-16 md:my-24"
             style={{
               opacity: revealed ? 1 : 0,
               transition: "opacity 0.5s ease 0.6s",

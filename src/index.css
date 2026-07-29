@@ -4,6 +4,14 @@
 
 /* dark green: 0x0e4749, sage green: 89a894*/
 
+/* Belt-and-braces guard so no page can ever scroll left-right: even if some
+   child overflows, the document itself has nowhere horizontal to go. */
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
 body {
   margin: 0;
   background-color: #F4F3EE;

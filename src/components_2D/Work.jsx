@@ -56,7 +56,7 @@ const WORK_EXPERIENCE = [
 
 function JobCard({ job, align }) {
   return (
-    <div className={`flex flex-col gap-1 max-w-sm ${align === "right" ? "items-start text-left" : "items-end text-right"}`}>
+    <div className={`flex flex-col gap-1 w-full max-w-sm ${align === "right" ? "items-start text-left" : "items-end text-right"}`}>
       <p className="font-semibold text-[#0e4749] text-base leading-tight">{job.title}</p>
       <p className="text-[#0e4749] text-sm opacity-70">{job.company}{job.location ? ` · ${job.location}` : ""}</p>
       <p className="text-[#0e4749] text-xs opacity-50 mb-1">{job.dates}</p>
@@ -105,7 +105,7 @@ function Work() {
     <div className="w-full my-24">
       {showPrize && <Prize3D onBurst={handleBurst} color="#9381FF" />}
 
-      <div className="flex flex-col items-start justify-center mx-12 gap-16">
+      <div className="flex flex-col items-start justify-center mx-6 md:mx-12 gap-8 md:gap-16">
         {/* Tab header */}
         <div
           style={{
@@ -117,14 +117,14 @@ function Work() {
           <div className="flex flex-row gap-2 items-center">
             <button
               onClick={() => setTab("work")}
-              className={`font-semibold text-4xl transition-opacity ${tab === "work" ? "text-[#0e4749] opacity-100" : "text-[#0e4749] opacity-30"}`}
+              className={`font-semibold text-2xl md:text-4xl transition-opacity ${tab === "work" ? "text-[#0e4749] opacity-100" : "text-[#0e4749] opacity-30"}`}
             >
               Work
             </button>
-            <span className="text-[#0e4749] text-4xl font-semibold opacity-30">/</span>
+            <span className="text-[#0e4749] text-2xl md:text-4xl font-semibold opacity-30">/</span>
             <button
               onClick={() => setTab("projects")}
-              className={`font-semibold text-4xl transition-opacity ${tab === "projects" ? "text-[#0e4749] opacity-100" : "text-[#0e4749] opacity-30"}`}
+              className={`font-semibold text-2xl md:text-4xl transition-opacity ${tab === "projects" ? "text-[#0e4749] opacity-100" : "text-[#0e4749] opacity-30"}`}
             >
               Projects
             </button>
@@ -142,7 +142,7 @@ function Work() {
               return (
                 <div
                   key={i}
-                  className="relative flex items-center mb-20"
+                  className="relative flex items-center mb-12 md:mb-20"
                   style={{
                     opacity: revealed ? 1 : 0,
                     transform: revealed ? "translateY(0)" : "translateY(24px)",
@@ -150,14 +150,14 @@ function Work() {
                   }}
                 >
                   {/* Left half */}
-                  <div className="w-1/2 pr-10 flex justify-end">
+                  <div className="w-1/2 pr-4 md:pr-10 flex justify-end">
                     {isLeft ? (
                       <JobCard job={job} align="right" />
                     ) : (
                       <img
                         src={job.logo}
                         alt={job.company}
-                        className="w-32 h-32 object-contain rounded-xl"
+                        className="w-20 h-20 md:w-32 md:h-32 object-contain rounded-xl"
                       />
                     )}
                   </div>
@@ -166,12 +166,12 @@ function Work() {
                   <div className="absolute left-1/2 -translate-x-1/2 w-3.5 h-3.5 rounded-full bg-[#0e4749] opacity-70 z-10 ring-4 ring-white" />
 
                   {/* Right half */}
-                  <div className="w-1/2 pl-10 flex justify-start">
+                  <div className="w-1/2 pl-4 md:pl-10 flex justify-start">
                     {isLeft ? (
                       <img
                         src={job.logo}
                         alt={job.company}
-                        className="w-32 h-32 object-contain rounded-xl"
+                        className="w-20 h-20 md:w-32 md:h-32 object-contain rounded-xl"
                       />
                     ) : (
                       <JobCard job={job} align="right" />
@@ -189,7 +189,7 @@ function Work() {
 
         {/* Links */}
         <div
-          className="flex flex-row items-center justify-center w-full gap-20 my-24"
+          className="flex flex-row items-center justify-center w-full gap-10 md:gap-20 my-16 md:my-24"
           style={{
             opacity: revealed ? 1 : 0,
             transition: "opacity 0.5s ease 0.6s",

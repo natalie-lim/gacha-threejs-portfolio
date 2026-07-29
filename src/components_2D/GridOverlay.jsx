@@ -94,6 +94,7 @@ function GridOverlay() {
         position: "fixed",
         top: 0,
         left: 0,
+        maxWidth: "100%",
         pointerEvents: "none",
         zIndex: 1,
       }}

@@ -9,6 +9,10 @@ function Gacha({ isFullSize, onToggleFullSize }) {
   const mountRef = useRef(null);
   const isFullSizeRef = useRef(false);
   const onToggleRef = useRef(onToggleFullSize);
+  // A ref, not state: the whole scene lives in a mount-once effect, so a state
+  // value read in there would be the one captured at mount and never update —
+  // the same reason isFullSize gets mirrored into a ref just below.
+  const picIdxRef = useRef(0);
   onToggleRef.current = onToggleFullSize;
 
   useEffect(() => {
@@ -51,13 +55,20 @@ function Gacha({ isFullSize, onToggleFullSize }) {
     bottomLight.position.set(0, -10, 0);
     scene.add(bottomLight);
     const controls = new OrbitControls(camera, renderer.domElement);
-    const mouse = new THREE.Vector2();
+    const pointer = new THREE.Vector2();
     const raycaster = new THREE.Raycaster();
-    window.addEventListener("pointermove", (event) => {
+
+    // Read straight off the event that's being handled rather than tracking
+    // pointermove: a finger tap doesn't have to emit a move first, so tracking
+    // left the coordinates stale (or dead center on the very first tap) and the
+    // crank raycast missed on touch no matter where you tapped.
+    function setPointerFromEvent(event) {
       const rect = renderer.domElement.getBoundingClientRect();
-      mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-      mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-    });
+      pointer.set(
+        ((event.clientX - rect.left) / rect.width) * 2 - 1,
+        -((event.clientY - rect.top) / rect.height) * 2 + 1,
+      );
+    }
     // controls.update() must be called after any manual changes to the camera's transform
     camera.position.set(0, 0, 3.78);
     controls.target.set(0, -0.625, 0);
@@ -226,6 +237,22 @@ function Gacha({ isFullSize, onToggleFullSize }) {
     scene.add(crankMesh);
     scene.add(result);
 
+    // The crank disc is only 0.25 world units across — roughly 30 CSS px on a
+    // phone, well under a fingertip. This sphere is a raycast target only (an
+    // invisible material still gets hit, unlike visible=false) so taps that land
+    // near the crank count as hitting it. Coarse pointers get a bigger pad than
+    // a mouse, which can afford to be precise. Centered off the crank's real
+    // world bounds, since its geometry carries baked-in CSG offsets.
+    const isCoarsePointer = window.matchMedia("(pointer: coarse)").matches;
+    const crankHitArea = new THREE.Mesh(
+      new THREE.SphereGeometry(isCoarsePointer ? 0.6 : 0.35, 12, 8),
+      new THREE.MeshBasicMaterial({ visible: false }),
+    );
+    crankHitArea.position.copy(
+      new THREE.Box3().setFromObject(crankMesh).getCenter(new THREE.Vector3()),
+    );
+    scene.add(crankHitArea);
+
     const glassMesh = new THREE.Mesh(bubbleGeometry, bubbleMaterial);
     glassMesh.rotation.x = Math.PI / 2;
     glassMesh.rotation.y = Math.PI / 2;
@@ -245,11 +272,11 @@ function Gacha({ isFullSize, onToggleFullSize }) {
     resizeObserver.observe(mount);
 
     const gumballColors = [
-      0xe63946, 0xf4a340, 0xf7d038, 0x4caf50, 0x2e86ab, 0x3d5a9e,
-      0x9b59b6, 0xe84393, 0x00b8a9, 0xf25c54, 0x6c5ce7, 0xff7f50,
-      0xff5252, 0xffb347, 0xffe066, 0x66bb6a, 0x42a5f5, 0x5c6bc0,
-      0xba68c8, 0xf06292, 0x26a69a, 0xff8a65, 0x7e57c2, 0xff6f91,
-      0xc0ca33, 0x00acc1, 0xef5350, 0xffa726, 0xab47bc, 0x8d6e63,
+      0xe63946, 0xf4a340, 0xf7d038, 0x4caf50, 0x2e86ab, 0x3d5a9e, 0x9b59b6,
+      0xe84393, 0x00b8a9, 0xf25c54, 0x6c5ce7, 0xff7f50, 0xff5252, 0xffb347,
+      0xffe066, 0x66bb6a, 0x42a5f5, 0x5c6bc0, 0xba68c8, 0xf06292, 0x26a69a,
+      0xff8a65, 0x7e57c2, 0xff6f91, 0xc0ca33, 0x00acc1, 0xef5350, 0xffa726,
+      0xab47bc, 0x8d6e63,
     ];
 
     // Physics world — gravity along -Y
@@ -568,7 +595,11 @@ function Gacha({ isFullSize, onToggleFullSize }) {
       prize.bottom.position.copy(prize.flightTo);
       scene.add(prize.top, prize.bottom);
 
-      const createPrize = PRIZES[Math.floor(Math.random() * PRIZES.length)];
+      // Round-robin through the prize list so every card gets shown before any
+      // repeats. The modulo both wraps the counter and keeps this in range if
+      // PRIZES shrinks between pops.
+      const createPrize = PRIZES[picIdxRef.current % PRIZES.length];
+      picIdxRef.current += 1;
       const borderColor = `#${prize.color.toString(16).padStart(6, "0")}`;
       prize.label = createPrize(borderColor);
       prize.label.position.copy(prize.flightTo);
@@ -579,9 +610,13 @@ function Gacha({ isFullSize, onToggleFullSize }) {
       prize.phase = "breaking";
     }
 
-    function onClick() {
-      raycaster.setFromCamera(mouse, camera);
-      const hits = raycaster.intersectObjects([crankMesh], true);
+    // pointerdown, not click: the crank turns the instant a finger lands instead
+    // of waiting for the touch to end. Each hit queues another full rotation, so
+    // impatient repeat taps stack up rather than being swallowed.
+    function onPointerDown(event) {
+      setPointerFromEvent(event);
+      raycaster.setFromCamera(pointer, camera);
+      const hits = raycaster.intersectObjects([crankMesh, crankHitArea], true);
       if (hits.length > 0) {
         spinCrank();
         setTimeout(() => {
@@ -594,16 +629,18 @@ function Gacha({ isFullSize, onToggleFullSize }) {
         }, 500);
       }
     }
-    renderer.domElement.addEventListener("click", onClick);
+    renderer.domElement.addEventListener("pointerdown", onPointerDown);
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1;
 
     return () => {
-      renderer.domElement.removeEventListener("click", onClick);
+      renderer.domElement.removeEventListener("pointerdown", onPointerDown);
       renderer.setAnimationLoop(null);
       resizeObserver.disconnect();
       prizes.forEach(cleanupPrize);
+      crankHitArea.geometry.dispose();
+      crankHitArea.material.dispose();
       halfGeo.top.dispose();
       halfGeo.bottom.dispose();
       renderer.dispose();
@@ -624,7 +661,10 @@ function Gacha({ isFullSize, onToggleFullSize }) {
               height: "100vh",
               zIndex: 999,
             }
-          : { width: "600px", height: "600px" }
+          : // Square, but never wider than the viewport — a hard 600px is by
+            // itself enough to make a phone scroll sideways. The ResizeObserver
+            // above keeps the camera aspect in sync as this changes.
+            { width: "min(600px, 88vw)", height: "min(600px, 88vw)" }
       }
     />
   );

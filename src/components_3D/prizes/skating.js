@@ -86,9 +86,11 @@ export default function createSkatingPrize(borderColor = "#0e4749") {
     texture.needsUpdate = true;
   }
 
-  // Start playback (muted autoplay is permitted) and repaint every frame so
-  // the moving video shows on the card. The loop stops itself when the card's
-  // texture is disposed during cleanup (see gacha.js cleanupPrize).
+  // Restart from the beginning each time a card opens, then play (muted
+  // autoplay is permitted) and repaint every frame so the moving video shows
+  // on the card. The loop stops itself when the card's texture is disposed
+  // during cleanup (see gacha.js cleanupPrize).
+  video.currentTime = 0;
   video.play().catch(() => {});
   let running = true;
   function tick() {
