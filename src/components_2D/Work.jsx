@@ -11,7 +11,7 @@ const WORK_EXPERIENCE = [
     dates: "May 2026 – Present",
     logo: carpenterLogo,
     bullets: [
-      "Owned an end-to-end defect classification pipeline from raw sensor data to production predictions (XGBoost, scikit-learn), reaching 97% accuracy with minimal existing tooling available",
+      "Built an end-to-end defect classification pipeline from raw sensor data to production predictions (XGBoost, scikit-learn), reaching 97% accuracy with minimal existing tooling available",
       "Partnered with non-technical steel plant stakeholders to translate SHAP-based feature importance into actions",
       "Rescaled the pipeline onto cloud infrastructure (Microsoft Fabric Lakehouse, Delta tables, Spark)",
       "Designed and shipped a real-time multi-camera thermal imaging dashboard (PyQtGraph, OpenCV, multithreading), deployed on the manufacturing floor for live defect monitoring in vacuum arc remelting machines",

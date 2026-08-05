@@ -8,18 +8,30 @@ export const CARD_PADDING = 30;
 export const CARD_FONT_SIZE = 30;
 export const CARD_LINE_HEIGHT = 38;
 export const SPRITE_WIDTH = 2.1;
-export const SPRITE_WIDTH_MOBILE = 1.25;
-export const MOBILE_BREAKPOINT = 768;
 
-// A card sprite is flown to a point ~2 world units in front of a 75° camera, so
-// the visible height there is fixed (~3.07 units) but the visible width is that
-// times the viewport's aspect ratio. On a portrait phone only ~1.7 units are in
-// frame, so the desktop width would hang off both edges — use a narrower card.
+// Fraction of the visible width a card may take, so it never runs to the edges.
+const FIT_FRACTION = 0.92;
+
+// How wide the view actually is, in world units, at the point a card is shown.
+// gacha.js measures this off its own camera before building one; until it does,
+// assume there's room for a full-size card.
+let visibleWidth = null;
+
+export function setCardVisibleWidth(width) {
+  visibleWidth = width;
+}
+
+// Cards stay full size wherever they fit, and only shrink where they genuinely
+// don't. Screen width is the wrong thing to test: the inline canvas is square on
+// every device, so a phone frames a card exactly like desktop does and has just
+// as much room. It's the fullscreen portrait view — barely half the width in
+// frame — that has to give. Height always follows the canvas, so shrinking the
+// width never changes a card's proportions.
 export function getSpriteWidth() {
-  if (window.innerWidth <= MOBILE_BREAKPOINT) {
-    return SPRITE_WIDTH_MOBILE;
-  } else {
+  if (visibleWidth === null) {
     return SPRITE_WIDTH;
+  } else {
+    return Math.min(SPRITE_WIDTH, visibleWidth * FIT_FRACTION);
   }
 }
 

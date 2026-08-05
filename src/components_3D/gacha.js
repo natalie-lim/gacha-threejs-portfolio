@@ -4,6 +4,7 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { Evaluator, Brush, SUBTRACTION, ADDITION } from "three-bvh-csg";
 import * as CANNON from "cannon-es";
 import PRIZES, { preloadPrizes } from "./prizes";
+import { setCardVisibleWidth } from "./prizes/cardUtils";
 
 function Gacha({ isFullSize, onToggleFullSize }) {
   const mountRef = useRef(null);
@@ -577,6 +578,16 @@ function Gacha({ isFullSize, onToggleFullSize }) {
       prize.phase = "flying";
     }
 
+    // World-space width of the camera's frustum at a point — i.e. how much room a
+    // card actually has once it gets there. Height at that distance is fixed by
+    // the field of view, but width scales with the canvas aspect: square while the
+    // machine is inline, roughly half that in fullscreen portrait.
+    function visibleWidthAt(point) {
+      const distance = camera.position.distanceTo(point);
+      const height = 2 * distance * Math.tan((camera.fov * Math.PI) / 360);
+      return height * camera.aspect;
+    }
+
     function startBreak(prize, now) {
       scene.remove(prize.mesh);
       prize.mesh.material.dispose();
@@ -605,6 +616,10 @@ function Gacha({ isFullSize, onToggleFullSize }) {
       prize.top.position.copy(prize.flightTo);
       prize.bottom.position.copy(prize.flightTo);
       scene.add(prize.top, prize.bottom);
+
+      // Measured per pop rather than once at setup, so it picks up the inline ⇄
+      // fullscreen switch and device rotation with no listener of its own.
+      setCardVisibleWidth(visibleWidthAt(prize.flightTo));
 
       // Round-robin through the prize list so every card gets shown before any
       // repeats. The modulo both wraps the counter and keeps this in range if
